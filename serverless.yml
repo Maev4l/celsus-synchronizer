@@ -1,0 +1,62 @@
+service: celsus-synchronize
+
+plugins:
+  - serverless-python-requirements # For python dependencies packaging
+  - serverless-api-compression # Enable AWS API Gateway gzip compression
+
+custom:
+  pythonRequirements: # For python dependencies packaging
+    dockerizePip: true
+    slim: true
+   contentCompression: 1024 # API Gateway gzip compression threshold (in bytes)
+
+provider:
+  name: aws
+  runtime: python3.7
+  versionFunctions: false
+  memorySize: 1024
+  region: eu-west-2
+  stage: dev
+  endpointType: REGIONAL
+  profile: serverless-admin-profile
+  # >>> Lambda has to live in VPC in order to access RDS
+  role: arn:aws:iam::671123374425:role/lambda-vpc-execution-role
+  vpc:
+    securityGroupIds:
+      - sg-06c688947d175cf8d # To access the RDS instance
+    subnetIds:
+      - subnet-a5cafae8
+      - subnet-5cf05835
+      - subnet-a8b456d2
+  # <<< Lambda has to live in VPC in order to access RDS
+
+  environment:
+    PGUSER: ${ssm:PG_USERNAME~true}
+    PGPASSWORD: ${ssm:PG_PASSWORD~true}
+    PGHOST: ${ssm:PG_HOSTNAME~true}
+    PGPORT: ${ssm:PG_PORT~true}
+    PGDATABASE: ${ssm:PG_DB_NAME~true}
+    PGSCHEMA: ${ssm:PG_CORE_SCHEMA~true}
+    REGION: ${self:provider.region}
+    LOG_LEVEL: info
+
+package:
+  exclude:
+    - .vscode/**
+    - .travis.yml
+    - package.json
+    - package-lock.json
+    - node_modules/**
+    - tests/**
+
+functions:
+  synchronize:
+    handler: synchronizer/handler.synchronize
+    name: synchronize
+    events:
+      - http:
+          path: v1/synchronize
+          method: post
+          cors: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-2:671123374425:userpool/eu-west-2_ocAf57dZ3
