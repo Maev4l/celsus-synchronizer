@@ -8,7 +8,7 @@ custom:
   pythonRequirements: # For python dependencies packaging
     dockerizePip: true
     slim: true
-   contentCompression: 1024 # API Gateway gzip compression threshold (in bytes)
+  contentCompression: 1024 # API Gateway gzip compression threshold (in bytes)
 
 provider:
   name: aws
