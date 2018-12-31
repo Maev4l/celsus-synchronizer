@@ -1,0 +1,21 @@
+language: python
+python:
+  - "3.7-dev"
+notifications:
+  email: false # Disable all mail notifications
+services:
+  - postgresql
+addons:
+  postgresql: "9.6"
+env:
+  global:
+    - PGUSER=postgres
+    - PGPASSWORD=
+    - PGHOST=localhost
+    - PGPORT=5432
+    - PGDATABASE=postgres
+    - PGSCHEMA=celsus_core
+install:
+  - pip install -r requirements.txt
+script:
+  - python -m pytest
