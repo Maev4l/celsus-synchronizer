@@ -8,15 +8,19 @@ from utils import make_mock_event
 
 
 @pytest.mark.usefixtures('provision_database')
-class TestSynchronize(object):
+class TestSynchronizeLibraries(object):
 
     def test_synchronize_first_time(self):
         payload = {
-            'libraries': []
+            'libraries': [],
+            'books': []
         }
 
         mock_event = make_mock_event('user1', payload)
         response = handler.synchronize(mock_event, None)
+        status_code = response['statusCode']
+        assert status_code == 200
+
         body = json.loads(response['body'])
 
         deleted_libraries = body['deletedLibraries']
@@ -37,7 +41,8 @@ class TestSynchronize(object):
                 'af9da085-4562-475f-baa5-38c3e5115c09',
                 # Was removed from the database
                 'ebbf31f3-13cd-484b-b93d-a076cc060c7a'
-            ]
+            ],
+            'books': []
         }
         mock_event = make_mock_event('user1', payload)
         response = handler.synchronize(mock_event, None)

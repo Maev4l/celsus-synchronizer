@@ -10,3 +10,7 @@ def makeResponse(statusCode, body):
         },
         'body': json.dumps(body)
     }
+
+
+def get_attribute(data, attribute, default_value):
+    return data.get(attribute) or default_value

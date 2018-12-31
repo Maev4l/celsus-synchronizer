@@ -1,8 +1,10 @@
 from contextlib import closing
 from psycopg2.extras import execute_values, NamedTupleCursor
 
+from synchronizer.utils import get_attribute
 
-def handle_libraries_sync(connection, userId, payload, schema):
+
+def handle_libraries_sync(connection, user_id, payload, schema):
     with closing(connection.cursor(cursor_factory=NamedTupleCursor)) as cursor:
         # 1. Insert all libraries identifiers into a temporary table
         tmp_table_name = 'libraries_identifiers_tmp'
@@ -14,7 +16,7 @@ def handle_libraries_sync(connection, userId, payload, schema):
         # Change the list of libraries identifiers into a list of
         # tuples with one element, the library id
         libraries_identifiers = list(
-            map(lambda l: (l,), payload['libraries']))
+            map(lambda l: (l,), get_attribute(payload, 'libraries', [])))
         execute_values(cursor,
                        f'INSERT INTO "{tmp_table_name}" ("id") VALUES %s',
                        libraries_identifiers,
@@ -37,9 +39,10 @@ def handle_libraries_sync(connection, userId, payload, schema):
             'deletedLibraries': [],
             'libraries': []
         }
-        cursor.execute(query, [userId, userId])
+        cursor.execute(query, [user_id, user_id])
         for record in cursor:
             if record.id is None:
+                # That means the library has been removed in the server database
                 result['deletedLibraries'].append(
                     record.remote_library_id)
             else:
