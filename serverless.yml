@@ -48,6 +48,8 @@ package:
     - package-lock.json
     - node_modules/**
     - tests/**
+    - conftest.py
+    - pytest.ini
 
 functions:
   synchronize:

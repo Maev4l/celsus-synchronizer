@@ -6,7 +6,7 @@
   "scripts": {
     "deploy": "npx sls deploy",
     "reqs": "pipreqs . --ignore node_modules --force",
-    "test": "python -m pytest"
+    "test": "pytest"
   },
   "author": "",
   "license": "ISC",
