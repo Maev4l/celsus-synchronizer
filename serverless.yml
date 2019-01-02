@@ -2,13 +2,11 @@ service: celsus-synchronize
 
 plugins:
   - serverless-python-requirements # For python dependencies packaging
-  - serverless-api-compression # Enable AWS API Gateway gzip compression
 
 custom:
   pythonRequirements: # For python dependencies packaging
     dockerizePip: true
     slim: true
-  contentCompression: 1024 # API Gateway gzip compression threshold (in bytes)
 
 provider:
   name: aws
@@ -19,6 +17,10 @@ provider:
   stage: dev
   endpointType: REGIONAL
   profile: serverless-admin-profile
+  # >>> Enable Gzip compression on AWS APi Gateway
+  apiGateway:
+    minimumCompressionSize: 1024 # in bytes
+  # <<< Enable Gzip compression on AWS APi Gateway
   # >>> Lambda has to live in VPC in order to access RDS
   role: arn:aws:iam::671123374425:role/lambda-vpc-execution-role
   vpc:

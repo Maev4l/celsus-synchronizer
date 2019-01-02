@@ -12,7 +12,6 @@
   "license": "ISC",
   "devDependencies": {
     "serverless": "^1.35.1",
-    "serverless-api-compression": "^1.0.1",
     "serverless-python-requirements": "^4.2.5"
   }
 }
