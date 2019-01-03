@@ -31,9 +31,6 @@ class TestSynchronizeLibraries(object):
         libraries_id = map(lambda l: l['id'], libraries)
         assert 'af9da085-4562-475f-baa5-38c3e5115c09' in libraries_id
 
-        for library in libraries:
-            assert library['userId'] == 'user1'
-
     def test_synchronize_libraries(self):
         payload = {
             'libraries': [
@@ -55,6 +52,4 @@ class TestSynchronizeLibraries(object):
         assert len(libraries) == 2
         libraries_id = map(lambda l: l['id'], libraries)
         assert 'af9da085-4562-475f-baa5-38c3e5115c09' in libraries_id
-
-        for library in libraries:
-            assert library['userId'] == 'user1'
+        assert '18a10d9d-4328-4404-8a65-ec1077113bea' in libraries_id

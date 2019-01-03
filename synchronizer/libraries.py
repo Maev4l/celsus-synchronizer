@@ -48,7 +48,6 @@ def handle_libraries_sync(connection, user_id, payload, schema):
             else:
                 result['libraries'].append({
                     'id': record.id,
-                    'userId': record.user_id,
                     'name': record.name,
                     'description': record.description
                 })
