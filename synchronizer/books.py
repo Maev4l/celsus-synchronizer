@@ -60,7 +60,7 @@ def handle_books_sync(connection, user_id, payload, schema):
                 book = {
                     'id': record.id,
                     'libraryId': record.library_id,
-                    'tile': record.title,
+                    'title': record.title,
                     'description': record.description,
                     'isbn10': record.isbn10,
                     'isbn13': record.isbn13,

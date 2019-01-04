@@ -44,10 +44,10 @@ The synchronization request is a JSON object in the following structure
 The response looks like:
 {
     libraries: [<created/updated libraries>],
-    deletedLibraries: [<deleted libraries>],
+    deletedLibraries: [<deleted libraries identifiers>],
     addedBooks: [<added books>],
     updatedBooks: [<updated books>],
-    deletedBooks: [<deleted books>]
+    deletedBooks: [<deleted books identifiers>]
 }
 """
 
