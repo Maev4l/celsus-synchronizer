@@ -2,11 +2,20 @@ service: celsus-synchronize
 
 plugins:
   - serverless-python-requirements # For python dependencies packaging
+  - serverless-domain-manager
 
 custom:
   pythonRequirements: # For python dependencies packaging
     dockerizePip: true
     slim: true
+  customDomain:
+    domainName: "api-celsus.isnan.eu"
+    certificateName: "*.isnan.eu"
+    hostedZoneId: ZWC66FN0XU6P9
+    basePath: "synchronization"
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+    endpointType: regional
 
 provider:
   name: aws
