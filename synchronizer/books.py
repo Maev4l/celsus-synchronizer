@@ -68,7 +68,8 @@ def handle_books_sync(connection, user_id, payload, schema):
                     'tags': record.tags if record.tags is not None else [],
                     'authors': record.authors if record.authors is not None else [],
                     'hash': record.hash,
-                    'language': record.language
+                    'language': record.language,
+                    'bookSet': record.book_set
                 }
 
                 if (record.local_id is None):
