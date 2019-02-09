@@ -63,13 +63,33 @@ package:
     - pytest.ini
 
 functions:
+  beginSynchronize:
+    handler: synchronizer/handler.begin_synchronize
+    name: begin-synchronize
+    events:
+      - http:
+          path: v1/synchronize
+          method: post
+          cors: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-2:671123374425:userpool/eu-west-2_ocAf57dZ3
   synchronize:
     handler: synchronizer/handler.synchronize
     name: synchronize
     events:
       - http:
-          path: v1/synchronize
-          method: post
+          path: v1/synchronize/{session}
+          method: get
+          cors: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-2:671123374425:userpool/eu-west-2_ocAf57dZ3
+  endSynchronize:
+    handler: synchronizer/handler.end_synchronize
+    name: end-synchronize
+    events:
+      - http:
+          path: v1/synchronize/{session}
+          method: delete
           cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:671123374425:userpool/eu-west-2_ocAf57dZ3

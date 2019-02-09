@@ -17,11 +17,17 @@ class TestSynchronizeLibraries(object):
         }
 
         mock_event = make_mock_event('user1', payload)
-        response = handler.synchronize(mock_event, None)
+        response = handler.begin_synchronize(mock_event, None)
         status_code = response['statusCode']
-        assert status_code == 200
+        assert status_code == 201
 
         body = json.loads(response['body'])
+
+        session = body['session']
+        assert len(session) != 0
+
+        pages_count = body['pagesCount']
+        assert pages_count != 0
 
         deleted_libraries = body['deletedLibraries']
         assert len(deleted_libraries) == 0
@@ -30,6 +36,13 @@ class TestSynchronizeLibraries(object):
         assert len(libraries) == 2
         libraries_id = map(lambda l: l['id'], libraries)
         assert 'af9da085-4562-475f-baa5-38c3e5115c09' in libraries_id
+
+        mock_event = make_mock_event('user1', '')
+        mock_event['pathParameters'] = {'session': session}
+        response = handler.end_synchronize(mock_event, None)
+
+        status_code = response['statusCode']
+        assert status_code == 204
 
     def test_synchronize_libraries(self):
         payload = {
@@ -42,8 +55,18 @@ class TestSynchronizeLibraries(object):
             'books': []
         }
         mock_event = make_mock_event('user1', payload)
-        response = handler.synchronize(mock_event, None)
+
+        response = handler.begin_synchronize(mock_event, None)
+        status_code = response['statusCode']
+        assert status_code == 201
+
         body = json.loads(response['body'])
+
+        session = body['session']
+        assert len(session) != 0
+
+        pages_count = body['pagesCount']
+        assert pages_count != 0
 
         deleted_libraries = body['deletedLibraries']
         assert 'ebbf31f3-13cd-484b-b93d-a076cc060c7a' in deleted_libraries
@@ -53,3 +76,10 @@ class TestSynchronizeLibraries(object):
         libraries_id = map(lambda l: l['id'], libraries)
         assert 'af9da085-4562-475f-baa5-38c3e5115c09' in libraries_id
         assert '18a10d9d-4328-4404-8a65-ec1077113bea' in libraries_id
+
+        mock_event = make_mock_event('user1', '')
+        mock_event['pathParameters'] = {'session': session}
+        response = handler.end_synchronize(mock_event, None)
+
+        status_code = response['statusCode']
+        assert status_code == 204

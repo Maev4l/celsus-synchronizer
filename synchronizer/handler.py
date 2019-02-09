@@ -2,6 +2,8 @@ import json
 import logging
 import os
 from contextlib import closing
+import uuid
+from datetime import datetime, timezone
 
 
 import psycopg2
@@ -9,7 +11,8 @@ import psycopg2
 
 from synchronizer.utils import makeResponse
 from synchronizer.libraries import handle_libraries_sync
-from synchronizer.books import handle_books_sync
+from synchronizer.books import (
+    handle_books_begin_sync, handle_books_sync, handle_books_end_sync, cleanup_old_sync)
 
 logger = logging.getLogger()
 
@@ -43,16 +46,16 @@ The synchronization request is a JSON object in the following structure
 }
 The response looks like:
 {
+    session: <sync session id>
+    pagesCount: <number of pages for updated/created books>
     libraries: [<created/updated libraries>],
     deletedLibraries: [<deleted libraries identifiers>],
-    addedBooks: [<added books>],
-    updatedBooks: [<updated books>],
     deletedBooks: [<deleted books identifiers>]
 }
 """
 
 
-def synchronize(event, context):
+def begin_synchronize(event, context):
     try:
         with closing(getConnection()) as connection:
 
@@ -61,13 +64,17 @@ def synchronize(event, context):
 
             schema = os.environ['PGSCHEMA']
 
+            synchronization_session_id = str(uuid.uuid4()).replace('-', '')
+
             response = {
+                'session': synchronization_session_id,
                 'deletedLibraries': [],
                 'libraries': [],
-                'addedBooks': [],
-                'updatedBooks': [],
                 'deletedBooks': []
             }
+
+            # Cleanup older synchronization which may have failed
+            cleanup_old_sync(connection=connection, schema=schema)
 
             sync_libraries_result = handle_libraries_sync(connection=connection,
                                                           user_id=user_id,
@@ -76,16 +83,78 @@ def synchronize(event, context):
             response['deletedLibraries'] = sync_libraries_result['deletedLibraries']
             response['libraries'] = sync_libraries_result['libraries']
 
-            sync_books_result = handle_books_sync(connection=connection,
-                                                  user_id=user_id,
-                                                  payload=payload,
-                                                  schema=schema)
+            sync_books_result = handle_books_begin_sync(connection=connection,
+                                                        sync_session=synchronization_session_id,
+                                                        timestamp=datetime.now(
+                                                            timezone.utc),
+                                                        user_id=user_id,
+                                                        payload=payload,
+                                                        schema=schema)
 
-            response['addedBooks'] = sync_books_result['addedBooks']
-            response['updatedBooks'] = sync_books_result['updatedBooks']
+            connection.commit()
+
             response['deletedBooks'] = sync_books_result['deletedBooks']
+            response['pagesCount'] = sync_books_result['pagesCount']
+
+            result = makeResponse(201, response)
+            return result
+
+    except psycopg2.Error as e:
+        logger.error(f"Synchronize error: {e}")
+        return makeResponse(500, {'message': str(e)})
+
+
+"""
+The response looks like:
+{
+    page: current returned page
+    addedBooks: [<added books>],
+    updatedBooks: [<updated books>],
+}
+"""
+
+
+def synchronize(event, context):
+    try:
+        with closing(getConnection()) as connection:
+            synchronization_session_id = event['pathParameters']['session']
+            query_params = event['queryStringParameters']
+            page = int(query_params['page']) if query_params['page'] else 1
+
+            schema = os.environ['PGSCHEMA']
+
+            sync_books_result = handle_books_sync(connection=connection,
+                                                  sync_session=synchronization_session_id,
+                                                  page=page,
+                                                  schema=schema)
+            response = {
+                'page': sync_books_result['page'],
+                'addedBooks': sync_books_result['addedBooks'],
+                'updatedBooks': sync_books_result['updatedBooks'],
+            }
 
             result = makeResponse(200, response)
+            return result
+
+    except psycopg2.Error as e:
+        logger.error(f"Synchronize error: {e}")
+        return makeResponse(500, {'message': str(e)})
+
+
+def end_synchronize(event, context):
+    try:
+        with closing(getConnection()) as connection:
+            synchronization_session_id = event['pathParameters']['session']
+
+            schema = os.environ['PGSCHEMA']
+
+            handle_books_end_sync(connection=connection,
+                                  sync_session=synchronization_session_id,
+                                  schema=schema)
+
+            connection.commit()
+
+            result = makeResponse(204, '')
             return result
 
     except psycopg2.Error as e:

@@ -36,6 +36,27 @@ class TestSynchronizeBooks(object):
         }
 
         mock_event = make_mock_event('user1', payload)
+        response = handler.begin_synchronize(mock_event, None)
+
+        status_code = response['statusCode']
+        assert status_code == 201
+
+        body = json.loads(response['body'])
+
+        session = body['session']
+        assert len(session) != 0
+
+        pages_count = body['pagesCount']
+        assert pages_count == 1
+
+        deleted_books = body['deletedBooks']
+        assert len(deleted_books) == 1
+        deleted_book = deleted_books[0]
+        assert deleted_book == '999'
+
+        mock_event = make_mock_event('user1', payload)
+        mock_event['pathParameters'] = {'session': session}
+        mock_event['queryStringParameters'] = {'page': 1}
         response = handler.synchronize(mock_event, None)
 
         status_code = response['statusCode']
@@ -48,12 +69,13 @@ class TestSynchronizeBooks(object):
         added_book = added_books[0]
         assert added_book['id'] == '3'
 
-        deleted_books = body['deletedBooks']
-        assert len(deleted_books) == 1
-        deleted_book = deleted_books[0]
-        assert deleted_book == '999'
-
         updated_books = body['updatedBooks']
         assert len(updated_books) == 1
         updated_book = updated_books[0]
         assert updated_book['id'] == '2'
+
+        mock_event = make_mock_event('user1', '')
+        mock_event['pathParameters'] = {'session': session}
+        response = handler.end_synchronize(mock_event, None)
+        status_code = response['statusCode']
+        assert status_code == 204

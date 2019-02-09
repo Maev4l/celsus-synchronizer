@@ -21,6 +21,31 @@ WITH (
 )
 TABLESPACE pg_default;
 
+CREATE TABLE IF NOT EXISTS "book_synchronization"
+(
+    session VARCHAR(36) NOT NULL,
+    ts TIMESTAMP NOT NULL,
+    id VARCHAR(36) NOT NULL,
+    user_id VARCHAR(36) NOT NULL,
+	  library_id VARCHAR(36) NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(1024) ,
+	  isbn10 VARCHAR(30),
+	  isbn13 VARCHAR(30),
+	  thumbnail TEXT,
+	  authors VARCHAR(1024) ARRAY,
+	  tags VARCHAR(1024) ARRAY,
+	  hash VARCHAR(64),
+    language VARCHAR(36) NOT NULL DEFAULT('french'),
+    book_set VARCHAR(100) DEFAULT(''),
+    book_set_order INTEGER DEFAULT(0),
+    local_id VARCHAR(36)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
 -- 1. Simple test case for user1
 INSERT INTO "book"("id", "user_id", "library_id", "title", "description", "isbn10", "isbn13", "thumbnail", "authors", "tags", "hash","book_set", "book_set_order")
   VALUES ('1', 'user1', 'af9da085-4562-475f-baa5-38c3e5115c09', 'Book Title1', 'Book Desc', 'Book isbn10', 'Book isbn13', 'Book thumbnal', ARRAY['Book authors'], ARRAY['Book tags'], 'hash-1.0','book set 1', 1);
