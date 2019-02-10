@@ -56,3 +56,9 @@ INSERT INTO "book"("id", "user_id", "library_id", "title", "description", "isbn1
 
 INSERT INTO "book"("id", "user_id", "library_id", "title", "description", "isbn10", "isbn13", "thumbnail", "authors", "tags", "hash","book_set", "book_set_order")
   VALUES ('500', 'user2', '73b57d71-4938-45cc-9880-51db8ebf3e7a', 'Book Title500', 'Book Desc', 'Book isbn10', 'Book isbn13', 'Book thumbnal', ARRAY['Book authors'], ARRAY['Book tags'], 'hash-500.0','book set 4', 1);
+
+-- 2. For cleanup tests
+INSERT INTO "book_synchronization"("session", "ts", "id", "user_id", "library_id", "title")
+  VALUES ('session--001',to_timestamp('05/04/2016', 'DD/MM/YYYY'),'1000', 'user2', '73b57d71-4938-45cc-9880-51db8ebf3e7a', 'Book Title500');
+INSERT INTO "book_synchronization"("session", "ts", "id", "user_id", "library_id", "title")
+  VALUES ('session--002',to_timestamp('05/04/2050', 'DD/MM/YYYY'),'1000', 'user2', '73b57d71-4938-45cc-9880-51db8ebf3e7a', 'Book Title500');

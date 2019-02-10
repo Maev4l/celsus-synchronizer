@@ -73,9 +73,6 @@ def begin_synchronize(event, context):
                 'deletedBooks': []
             }
 
-            # Cleanup older synchronization which may have failed
-            cleanup_old_sync(connection=connection, schema=schema)
-
             sync_libraries_result = handle_libraries_sync(connection=connection,
                                                           user_id=user_id,
                                                           payload=payload,
@@ -160,3 +157,17 @@ def end_synchronize(event, context):
     except psycopg2.Error as e:
         logger.error(f"Synchronize error: {e}")
         return makeResponse(500, {'message': str(e)})
+
+
+def cleanup(event, context):
+    try:
+        with closing(getConnection()) as connection:
+            schema = os.environ['PGSCHEMA']
+
+            # Cleanup older synchronization which may have failed
+            cleanup_old_sync(connection=connection, schema=schema)
+
+            connection.commit()
+
+    except psycopg2.Error as e:
+        logger.error(f"Cleanup error: {e}")

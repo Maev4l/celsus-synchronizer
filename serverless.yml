@@ -93,3 +93,8 @@ functions:
           cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:671123374425:userpool/eu-west-2_ocAf57dZ3
+  cleanUp:
+    handler: synchronizer/handler.cleanup
+    name: cleanup-synchronize
+    events:
+      - schedule: rate(7 days)
