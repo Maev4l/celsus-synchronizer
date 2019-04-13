@@ -4,15 +4,16 @@
   "description": "",
   "main": "",
   "scripts": {
-    "deploy": "npx sls deploy",
+    "deploy:dev": "npm run donwload-infra:dev && npx sls deploy",
+    "donwload-infra:dev": "aws s3 cp s3://celsus-tf-state/celsus/dev/infra.json infra.json",
     "reqs": "pipreqs . --ignore node_modules --force",
     "test": "pytest"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "serverless": "^1.35.1",
-    "serverless-domain-manager": "^2.6.11",
-    "serverless-python-requirements": "^4.2.5"
+    "serverless": "^1.40.0",
+    "serverless-domain-manager": "^3.2.1",
+    "serverless-python-requirements": "^4.3.0"
   }
 }

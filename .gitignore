@@ -29,3 +29,6 @@ node_modules
 
 # Coverage
 .coverage
+
+# Terraform infra
+infra.json
