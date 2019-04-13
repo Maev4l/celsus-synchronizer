@@ -36,6 +36,7 @@ provider:
   vpc:
     securityGroupIds:
       - ${self:custom.config.coreStorageSecurityGroup} # To access the RDS instance
+      - ${self:custom.config.mainVPCDefaultSecurityGroup} # To publish to SNS via the VPC Endpoint
     subnetIds:
       - ${self:custom.config.mainVPCSubnet2}
   # <<< Lambda has to live in VPC in order to access RDS
