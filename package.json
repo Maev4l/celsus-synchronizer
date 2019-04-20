@@ -4,8 +4,8 @@
   "description": "",
   "main": "",
   "scripts": {
-    "deploy:dev": "npm run donwload-infra:dev && npx sls deploy",
-    "donwload-infra:dev": "aws s3 cp s3://celsus-tf-state/celsus/dev/infra.json infra.json",
+    "deploy:dev": "npm run download-infra:dev && npx sls deploy",
+    "download-infra:dev": "aws s3 cp s3://celsus-tf-state/celsus/dev/infra.json infra.json",
     "reqs": "pipreqs . --ignore node_modules --force",
     "test": "pytest"
   },
