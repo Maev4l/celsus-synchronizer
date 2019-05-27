@@ -27,6 +27,7 @@ provider:
   stage: ${self:custom.config.environment}
   endpointType: EDGE
   profile: serverless-admin-profile
+  timeout: 30
   # >>> Enable Gzip compression on AWS APi Gateway
   apiGateway:
     minimumCompressionSize: 1024 # in bytes
